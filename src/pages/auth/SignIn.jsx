@@ -80,7 +80,7 @@ const SignIn = () => {
         reverseOrder={false}
       />
       <>
-        <div className="bg-purple-900 absolute top-0 left-0 bg-gradient-to-b from-gray-900 via-gray-900 to-purple-800 bottom-0 leading-5 h-full w-full overflow-hidden"></div>
+        <div className="bg-blue-900 absolute top-0 left-0 bg-gradient-to-b from-gray-900 via-gray-900 to-blue-800 bottom-0 leading-5 h-full w-full overflow-hidden"></div>
         <div className="relative min-h-screen sm:flex sm:flex-row justify-center bg-transparent rounded-3xl shadow-xl">
           <div className="flex-col flex self-center lg:px-14 sm:max-w-4xl xl:max-w-md z-10">
             <div className="self-start hidden lg:flex flex-col text-gray-300">
@@ -92,10 +92,14 @@ const SignIn = () => {
               </p>
             </div>
           </div>
-          <div className="flex justify-center  self-center z-10">
-            <div className="p-12 bg-white  shadow-xl shadow-purple-600 mx-auto rounded-3xl w-96">
-              <div className="mb-7">
-                <h3 className="font-semibold text-2xl text-gray-800">
+          <div className="flex justify-center    self-center z-10">
+            <div className="p-10 bg-white  shadow-xl shadow-blue-600 mx-auto rounded-3xl w-96">
+              <div className="mb-7 rounded-lg   flex items-center justify-center gap-2 ">
+                <img src="https://singleclik.com/draft/assets/img/logos/logo.png" alt="logo_image" className="w-12 h-12" />
+                <span className=" text-3xl font-bold text-blue-900">Single Clik</span>
+              </div>
+              <div className="mb-7  ">
+                <h3 className="font-semibold text-xl text-gray-800">
                   Sign In{" "}
                 </h3>
                 <p className="text-gray-600 text-xs">
@@ -111,7 +115,7 @@ const SignIn = () => {
                       name="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full text-sm px-4 py-3 bg-white focus:bg-gray-100 border-2 border-gray-400 rounded-lg focus:outline-none focus:border-purple-400"
+                      className="w-full text-sm px-4 py-3 bg-white focus:bg-gray-100 border-2 border-gray-400 rounded-lg focus:outline-none focus:border-blue-400"
                       placeholder="123456789"
                     />
                   </div>
@@ -124,13 +128,13 @@ const SignIn = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       type={show ? "password" : "text"}
-                      className="text-sm px-4 py-3 rounded-lg w-full bg-white focus:bg-gray-100 border-2 border-gray-400 focus:outline-none focus:border-purple-400"
+                      className="text-sm px-4 py-3 rounded-lg w-full bg-white focus:bg-gray-100 border-2 border-gray-400 focus:outline-none focus:border-blue-400"
                     />
                     <div className="flex items-center absolute inset-y-0 right-0 mr-3 text-sm leading-5">
                       {show ? (
                         <svg
                           onClick={() => setShow(!show)}
-                          className="h-4 text-purple-700"
+                          className="h-4 text-blue-700"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 576 512"
@@ -143,7 +147,7 @@ const SignIn = () => {
                       ) : (
                         <svg
                           onClick={() => setShow(!show)}
-                          className="h-4 text-purple-700"
+                          className="h-4 text-blue-700"
                           fill="none"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 640 512"
@@ -161,7 +165,7 @@ const SignIn = () => {
                     <div className="text-sm ml-auto">
                       <a
                         href="#"
-                        className="text-purple-700 hover:text-purple-600"
+                        className="text-blue-700 hover:text-blue-600"
                       >
                         Forgot your password?
                       </a>
@@ -172,70 +176,52 @@ const SignIn = () => {
                       type="submit"
                       disabled={loading}
                      
-                      className="w-full flex justify-center bg-purple-800 hover:bg-purple-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
+                      className="w-full flex justify-center bg-blue-800 hover:bg-blue-700 text-gray-100 p-3 rounded-lg tracking-wide font-semibold cursor-pointer transition ease-in duration-500"
                     >
                       {loading ? "Checking..." : "Sign In"}
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-center space-x-2 my-5">
-                    <span className="h-px w-16 bg-gray-600"></span>
-                    <span className="text-gray-900 font-normal">or</span>
-                    <span className="h-px w-16 bg-gray-600"></span>
-                  </div>
-                  <div className="flex justify-center gap-5 w-full">
-                    <button
-                      type="submit"
-                      title="Forget Password"
-                      className="w-full flex items-center justify-center mb-6 md:mb-0 border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-900 hover:text-white p-3 rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500"
-                    >
-                      <span>ContactUs</span>
-                    </button>
-
-                    <button
-                      type="submit"
-                      className="w-full flex items-center justify-center mb-6 md:mb-0 border-2 border-gray-300 hover:border-gray-900 hover:bg-gray-900 text-sm text-gray-900 hover:text-white p-3 rounded-lg tracking-wide font-medium cursor-pointer transition ease-in duration-500"
-                    >
-                      <span>Sign Up</span>
-                    </button>
-                  </div>
+                
                 </div>
               </form>
-              <div className="mt-7 text-center text-gray-900 text-xs">
-                <span>
-                  Copyright © 2024-2025
-                  <a
-                    href="https://codepen.io/uidesignhub"
-                    rel=""
-                    target="_blank"
-                    title="Codepen aji"
-                    className="text-purple-500 hover:text-purple-600"
-                  >
-                    AG-Solutions
-                  </a>
-                </span>
-              </div>
+             
             </div>
           </div>
         </div>
-        <footer className="bg-transparent absolute w-full bottom-0 left-0 z-30">
+        <footer className="bg-transparent absolute w-full bottom-0 left-0 hidden md:block lg:block z-30">
           <div className="container p-5 mx-auto flex items-center justify-between">
-            <div className="flex mr-auto">
-              <a
-                href="https://ag-solutions.in/"
-                target="_blank"
-                title="codepen aji"
-                className="text-center text-gray-700 focus:outline-none"
-              >
-                <img
-                  src="https://ag-solutions.in/assets/images/logo.png"
-                  alt="aji"
-                  className="object-cover mx-auto w-10 h-10 rounded-full "
-                />
-                <p className="text-xl">
-                  AG<strong>Solutions</strong>
-                </p>
-              </a>
+            <div className="flex mr-auto ">
+            <span>
+            Handcrafted with love by 
+                  <a
+                    href="https://ag-solutions.in/"
+                    rel=""
+                    target="_blank"
+                    title="Codepen aji"
+                    className="text-blue-500 hover:text-blue-600"
+                  >
+                    {" "}AG-Solutions
+                  </a>
+                </span>
+            </div>
+          </div>
+        </footer>
+        <footer className="bg-transparent absolute w-full bottom-0 mb-12 left-0 block lg:hidden md:hidden  z-30">
+          <div className="container p-5 mx-auto flex items-center justify-between">
+            <div className="flex mx-auto ">
+            <span>
+            Handcrafted with love by 
+                  <a
+                    href="https://ag-solutions.in/"
+                    rel=""
+                    target="_blank"
+                    title="Codepen aji"
+                    className="text-white underline animate-pulse hover:text-blue-600"
+                  >
+                    {" "}AG-Solutions
+                  </a>
+                </span>
             </div>
           </div>
         </footer>
