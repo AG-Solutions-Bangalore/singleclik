@@ -43,6 +43,8 @@ const AppProvider = ({ children }) => {
           "/member-edit",
           "/category-view",
           "/category",
+          "/profile",
+          "/change-password",
           "/category-edit",
           "/sub-category",
           "/add-subCategory",

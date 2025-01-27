@@ -11,35 +11,38 @@ import { RiEditLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import { TbStatusChange } from "react-icons/tb";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-
+import { Radio, Space, Popover, Button, Input } from "antd";
+import { FiMessageCircle } from "react-icons/fi";
 
 
 const MemberList = () => {
-  
   const [MemberListData, setMemberListData] = useState(null);
+  const [filteredData, setFilteredData] = useState(null);
   const [loading, setLoading] = useState(false);
   const { isPanelUp } = useContext(ContextPanel);
   const navigate = useNavigate();
   const location = useLocation();
-    const [page, setPage] = useState(0);
-    const rowsPerPage = 10;
-    const totalSliders = MemberListData?.total_count
-    const searchParams = new URLSearchParams(location.search);
-    const pageParam = searchParams.get('page');
-    useEffect(() => {
-      if (pageParam) {
-        setPage(parseInt(pageParam) - 1);
-      }else{
-        const storedPageNo = localStorage.getItem("page-no");
-        if (storedPageNo) {
-          setPage(parseInt(storedPageNo) - 1);
-          navigate(`/member-list?page=${storedPageNo}`); // Update the URL with stored page-no
-        }else{
-          localStorage.setItem("page-no", 1)
-          setPage(0)
-        }
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
+  const totalSliders = MemberListData?.total_count;
+  const searchParams = new URLSearchParams(location.search);
+  const pageParam = searchParams.get("page");
+  const [position, setPosition] = useState("All");
+    const [globalWhatsappMessage, setGlobalWhatsappMessage] = useState("");
+  useEffect(() => {
+    if (pageParam) {
+      setPage(parseInt(pageParam) - 1);
+    } else {
+      const storedPageNo = localStorage.getItem("page-no");
+      if (storedPageNo) {
+        setPage(parseInt(storedPageNo) - 1);
+        navigate(`/member-list?page=${storedPageNo}`); // Update the URL with stored page-no
+      } else {
+        localStorage.setItem("page-no", 1);
+        setPage(0);
       }
-    }, [location]);
+    }
+  }, [location]);
   useEffect(() => {
     const fetchMemberListData = async () => {
       try {
@@ -58,7 +61,7 @@ const MemberList = () => {
           }
         );
 
-        setMemberListData(response.data?.user );
+        setMemberListData(response.data?.user);
       } catch (error) {
         console.error("Error fetching user list data", error);
       } finally {
@@ -69,12 +72,23 @@ const MemberList = () => {
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (MemberListData) {
+      let filtered = MemberListData;
+      if (position === "Photo") {
+        filtered = MemberListData.filter((member) => member.photo !== null);
+      } else if (position === "No photo") {
+        filtered = MemberListData.filter((member) => member.photo === null);
+      }
+      setFilteredData(filtered);
+    }
+  }, [position, MemberListData]);
 
-  const whatsApp = (e, value,userName) => {
+  const whatsApp = (e, value, userName) => {
     e.preventDefault();
-    
+
     const phoneNumber = value;
-    const code='+91'
+    const code = "+91";
     const message = ` Dear ${userName}.
     \n
     Thank you for registering with us.
@@ -84,52 +98,72 @@ const MemberList = () => {
     Thanks and regards,\n
     Govind Garg\n
     AG Solutions`;
-    const whatsappLink = `https://wa.me/${code}${phoneNumber}?text=${encodeURIComponent(message)}`;
-    
-    window.open(whatsappLink, '_blank');
-    
-}
+    const whatsappLink = `https://wa.me/${code}${phoneNumber}?text=${encodeURIComponent(
+      message
+    )}`;
 
-const handleChangeToHold = async (e, id) => {
-  e.preventDefault();
-  try {
-    if (!isPanelUp) {
-      navigate("/maintenance");
-      return;
+    window.open(whatsappLink, "_blank");
+  };
+
+  const handleChangeToHold = async (e, id) => {
+    e.preventDefault();
+    try {
+      if (!isPanelUp) {
+        navigate("/maintenance");
+        return;
+      }
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await axios({
+        url: BASE_URL + "/api/panel-convert-business-consumer/" + id,
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.data.code == "200") {
+        toast.success("Member Hold  succesfully");
+        setMemberListData((prevMemberListData) =>
+          prevMemberListData.filter(
+            (member) => member.id !== id && member.status === member.status
+          )
+        );
+      } else {
+        toast.error("Member Cannot be Hold");
+      }
+    } catch (error) {
+      console.error("Error Meber hol data", error);
+      toast.error("Error member hold data");
+    } finally {
+      setLoading(false);
     }
-    setLoading(true);
-    const token = localStorage.getItem("token");
-    const res = await axios({
-      url: BASE_URL + "/api/panel-convert-business-consumer/" + id, 
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (res.data.code == "200") {
-      toast.success("Member Hold  succesfully")
-      setMemberListData((prevMemberListData) => 
-        prevMemberListData.filter((member) => member.id !== id && member.status === member.status)
-      );
-     
-    } else {
-      toast.error("Member Cannot be Hold");
-    }
-  } catch (error) {
-    console.error("Error Meber hol data", error);
-    toast.error("Error member hold data");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
+  const handleEdit = (e, id) => {
+    e.preventDefault();
+    localStorage.setItem("page-no", pageParam);
+    navigate(`/member-edit/${id}`);
+  };
 
-const handleEdit = (e,id)=>{
-  e.preventDefault()
-  localStorage.setItem("page-no",pageParam)
-  navigate(`/member-edit/${id}`)
-}
-  
+  const handleWhatsAppClick = (e, mobile) => {
+    e.stopPropagation();
+    const encodedMessage = encodeURIComponent(globalWhatsappMessage);
+    const whatsappUrl = `https://wa.me/+91${mobile.replace(/\D/g, "")}?text=${encodedMessage}`;
+    console.log("WhatsApp URL:", whatsappUrl);
+    window.open(whatsappUrl, "_blank");
+  };
+
+  const popoverContent = (
+    <div className="space-y-4">
+      <h4 className="font-medium leading-none">WhatsApp Message</h4>
+      <Input.TextArea
+        placeholder="Type your WhatsApp message..."
+        className="min-h-[100px]"
+        value={globalWhatsappMessage}
+        onChange={(e) => setGlobalWhatsappMessage(e.target.value)}
+      />
+    </div>
+  );
   const columns = [
     {
       name: "slNo",
@@ -220,32 +254,41 @@ const handleEdit = (e,id)=>{
         filter: false,
         sort: false,
         customBodyRender: (id, tableMeta) => {
-            const usermobile = MemberListData[tableMeta.rowIndex].mobile;
-            const userName = MemberListData[tableMeta.rowIndex].name;
-            const userphoto = MemberListData[tableMeta.rowIndex].photo;
+          const usermobile = MemberListData[tableMeta.rowIndex].mobile;
+          const userName = MemberListData[tableMeta.rowIndex].name;
+          const userphoto = MemberListData[tableMeta.rowIndex].photo;
           return (
             <div className="flex items-center space-x-2">
-                {/* common  */}
-                { !userphoto &&
+              {/* common  */}
+              {!userphoto && (
                 <FaWhatsapp
-                onClick={(e) => whatsApp(e,usermobile,userName)}
-                title="Send WhatsApp Message"
+                  onClick={(e) => whatsApp(e, usermobile, userName)}
+                  title="Send WhatsApp Message"
+                  className="h-5 w-5 cursor-pointer"
+                />
+              )}
+              <RiEditLine
+                onClick={(e) => handleEdit(e, id)}
+                title="Edit Member Info"
                 className="h-5 w-5 cursor-pointer"
               />
-            }
-                <RiEditLine
-                    onClick={(e) => handleEdit(e,id)}
-                    title="Edit Member Info"
-                    className="h-5 w-5 cursor-pointer"
-                  />
-                <MdOutlineRemoveRedEye
+              <MdOutlineRemoveRedEye
                 onClick={() => navigate(`/member-view/${id}`)}
                 title="View Member Info"
                 className="h-5 w-5 cursor-pointer"
               />
               <TbStatusChange
-              onClick={(e)=>handleChangeToHold(e,id)}
-              title="Hold" className="w-6 h-6 text-red-700 cursor-pointer" />
+                onClick={(e) => handleChangeToHold(e, id)}
+                title="Hold"
+                className="w-6 h-6 text-red-700 cursor-pointer"
+              />
+                <FiMessageCircle
+              
+                onClick={(e) => handleWhatsAppClick(e, usermobile)}
+                title="Open WhatsApp"
+                className="w-5 h-5 hover:text-green-600 cursor-pointer"
+             />
+            
             </div>
           );
         },
@@ -255,51 +298,79 @@ const handleEdit = (e,id)=>{
   const options = {
     selectableRows: "none",
     elevation: 0,
-  
+
     responsive: "standard",
     viewColumns: true,
     download: false,
     print: false,
-    count: totalSliders,
-      rowsPerPage: rowsPerPage,
-      page: page,
-      onChangePage: (currentPage) => {
-        setPage(currentPage);
-        navigate(`/member-list?page=${currentPage + 1}`);
-      },
-      customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => {
-        return (
-          <div className="flex justify-end items-center p-4">
-           
-           <span className="mx-4">
-            <span className='text-red-600'>{page + 1}</span>-{rowsPerPage} of {Math.ceil(count / rowsPerPage)}
-            </span>
-              <IoIosArrowBack 
-                  onClick={page === 0 ? null : () => changePage(page - 1)}
-              
-              className={`w-6 h-6 cursor-pointer ${page === 0 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600'}  hover:text-red-600`}
-              />
-              <IoIosArrowForward
-             onClick={page >= Math.ceil(count / rowsPerPage) - 1 ? null : () => changePage(page + 1)}
-               className={`w-6 h-6 cursor-pointer ${page >= Math.ceil(count / rowsPerPage) - 1 ?'text-gray-400 cursor-not-allowed' : 'text-blue-600'}  hover:text-red-600`}
-              />
-            
-          </div>
-        );
-      },
-    
+    count: filteredData?.length || 0,
+    rowsPerPage: rowsPerPage,
+    page: page,
+    onChangePage: (currentPage) => {
+      setPage(currentPage);
+      navigate(`/member-list?page=${currentPage + 1}`);
+    },
+    customToolbar: () => {
+      return (
+        <div>
+          <Popover content={popoverContent} trigger="click" placement="bottom">
+            <Button
+              className="text-[12px] p-[9px] bg-blue-200"
+              style={{ marginRight: "10px" }}
+            >
+              Add Message
+            </Button>
+          </Popover>
+          <Space>
+            <Radio.Group
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+            >
+              <Radio.Button value="All">All</Radio.Button>
+              <Radio.Button value="Photo">Photo</Radio.Button>
+              <Radio.Button value="No photo">NO Photo</Radio.Button>
+            </Radio.Group>
+          </Space>
+        </div>
+      );
+    },
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => {
+      return (
+        <div className="flex justify-end items-center p-4">
+          <span className="mx-4">
+            <span className="text-red-600">{page + 1}</span>-{rowsPerPage} of{" "}
+            {Math.ceil(count / rowsPerPage)}
+          </span>
+          <IoIosArrowBack
+            onClick={page === 0 ? null : () => changePage(page - 1)}
+            className={`w-6 h-6 cursor-pointer ${
+              page === 0 ? "text-gray-400 cursor-not-allowed" : "text-blue-600"
+            }  hover:text-red-600`}
+          />
+          <IoIosArrowForward
+            onClick={
+              page >= Math.ceil(count / rowsPerPage) - 1
+                ? null
+                : () => changePage(page + 1)
+            }
+            className={`w-6 h-6 cursor-pointer ${
+              page >= Math.ceil(count / rowsPerPage) - 1
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600"
+            }  hover:text-red-600`}
+          />
+        </div>
+      );
+    },
   };
   return (
     <Layout>
-      
-     
       <div className="mt-5 ">
         <MUIDataTable
-        title={"Member List"}
-          data={MemberListData ? MemberListData : []}
+          title={"Member List"}
+          data={filteredData || []}
           columns={columns}
           options={options}
-          
         />
       </div>
     </Layout>
